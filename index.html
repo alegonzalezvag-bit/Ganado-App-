@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a6b3c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GanadoApp">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+<title>GanadoApp</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#1a6b3c;--green-l:#e8f5ee;--green-m:#2d8a52;--green-d:#0f4525;
+  --amber:#b85c00;--amber-l:#fff3e0;--red:#c0392b;--red-l:#fdecea;
+  --blue:#1565c0;--blue-l:#e8f0fe;--purple:#6b21a8;--purple-l:#f3e8ff;
+  --bg:#f5f4f0;--card:#fff;--border:#e2e0d8;--txt:#1a1a18;--txt2:#5c5c58;--txt3:#9c9c96;
+  --nav-h:64px;--top-h:56px;--safe-bottom:env(safe-area-inset-bottom,0px);
+  font-family:'DM Sans',sans-serif;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-size:14px}
+.app{display:flex;flex-direction:column;height:100vh;max-width:600px;margin:0 auto;background:var(--bg)}
+
+/* AUTH */
+.auth-wrap{flex:1;display:flex;flex-direction:column;overflow-y:auto;height:100vh}
+.auth-hero{background:var(--green-d);padding:52px 28px 40px;position:relative;overflow:hidden;flex-shrink:0}
+.auth-hero::before{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.04)}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.auth-logo-icon{width:44px;height:44px;background:var(--green-m);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.auth-logo-text{font-size:20px;font-weight:600;color:#fff}
+.auth-logo-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}
+.auth-title{font-size:28px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:8px}
+.auth-sub{font-size:13px;color:rgba(255,255,255,.6)}
+.auth-body{background:var(--card);border-radius:24px 24px 0 0;margin-top:-20px;padding:28px 24px 40px;flex:1}
+.auth-body h2{font-size:18px;font-weight:600;margin-bottom:20px}
+.auth-switch{text-align:center;margin-top:20px;font-size:13px;color:var(--txt3)}
+.auth-switch a{color:var(--green);font-weight:500;cursor:pointer}
+
+/* FORMS */
+.form-group{margin-bottom:14px}
+.form-group label{font-size:12px;color:var(--txt2);font-weight:500;display:block;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--txt);outline:none;transition:border-color .15s;-webkit-appearance:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green)}
+.input-wrap{position:relative}
+.input-wrap input{padding-right:46px}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--txt3);font-size:18px;padding:6px}
+.btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s;touch-action:manipulation}
+.btn:active{opacity:.8}
+.btn-primary{background:var(--green);color:#fff}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--txt2)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-sm{padding:7px 14px;width:auto;font-size:12px;border-radius:9px}
+.error-msg{background:var(--red-l);color:var(--red);font-size:12px;padding:10px 12px;border-radius:10px;margin-bottom:12px;display:none}
+.success-msg{background:var(--green-l);color:var(--green);font-size:12px;padding:10px 12px;border-radius:10px;margin-bottom:12px;display:none}
+.role-select{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.role-opt{border:1.5px solid var(--border);border-radius:12px;padding:12px 6px;text-align:center;cursor:pointer;transition:all .15s;background:#fff}
+.role-opt.selected{border-color:var(--green);background:var(--green-l)}
+.role-opt .role-icon{font-size:20px;margin-bottom:4px}
+.role-opt .role-name{font-size:11px;font-weight:500;color:var(--txt2)}
+.role-opt.selected .role-name{color:var(--green)}
+.pass-strength{height:4px;border-radius:2px;margin-top:6px;transition:all .3s;background:var(--border)}
+.pass-hint{font-size:11px;color:var(--txt3);margin-top:4px}
+
+/* APP CHROME */
+.topbar{height:var(--top-h);background:var(--green);display:flex;align-items:center;padding:0 16px;gap:8px;flex-shrink:0;padding-top:env(safe-area-inset-top,0)}
+.topbar h1{color:#fff;font-size:15px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lote-selector{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 10px;cursor:pointer;flex-shrink:0;max-width:140px}
+.lote-selector-name{font-size:11px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.lote-selector svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5;flex-shrink:0}
+.notif-btn{position:relative;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.notif-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:#f87171;border-radius:50%;border:2px solid var(--green);display:none}
+.user-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:4px 8px 4px 4px;cursor:pointer;flex-shrink:0}
+.user-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
+.user-chip-name{font-size:11px;color:#fff;font-weight:500}
+.screen{flex:1;overflow-y:auto;padding:16px;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);display:none}
+.screen.active{display:block}
+.nav{height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:var(--card);border-top:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;z-index:10}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;cursor:pointer;border:none;background:none;color:var(--txt3);font-size:9px;font-family:'DM Sans',sans-serif;transition:color .15s;position:relative;touch-action:manipulation}
+.nav-item.active{color:var(--green)}
+.nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-item.locked{opacity:.35;pointer-events:none}
+.nav-badge{position:absolute;top:5px;right:8px;background:var(--red);color:#fff;font-size:9px;font-weight:600;border-radius:10px;padding:1px 5px;display:none}
+
+/* INSTALL BANNER */
+#installBanner{display:none;background:var(--green-d);padding:10px 16px;align-items:center;gap:10px;flex-shrink:0}
+#installBanner p{flex:1;font-size:12px;color:#fff;line-height:1.4}
+#installBanner .ib-btn{background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+#installBanner .ib-x{background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:0 4px;line-height:1}
+
+/* CARDS */
+.card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:14px;margin-bottom:12px}
+.card h3{font-size:12px;color:var(--txt2);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.metric{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:12px}
+.metric .lbl{font-size:11px;color:var(--txt3);margin-bottom:4px}
+.metric .val{font-size:20px;font-weight:600;line-height:1}
+.metric .sub{font-size:11px;color:var(--txt3);margin-top:3px}
+.metric.green .val{color:var(--green)}.metric.amber .val{color:var(--amber)}.metric.red .val{color:var(--red)}.metric.blue .val{color:var(--blue)}
+.chart-wrap{position:relative;width:100%}
+.sec-title{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.status-bar{display:flex;gap:6px;padding:10px 12px;background:var(--green);border-radius:12px;margin-bottom:14px}
+.status-item{flex:1;text-align:center}
+.status-item .sv{font-size:13px;font-weight:600;color:#fff}
+.status-item .sl{font-size:9px;color:rgba(255,255,255,.7)}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px}
+.alert-item.red{background:var(--red-l)}.alert-item.amber{background:var(--amber-l)}.alert-item.green{background:var(--green-l)}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-dot.red{background:var(--red)}.alert-dot.amber{background:var(--amber)}.alert-dot.green{background:var(--green)}
+.alert-txt{font-size:13px;color:var(--txt)}
+.alert-txt span{font-size:11px;color:var(--txt3);display:block;margin-top:2px}
+.role-badge{display:inline-flex;align-items:center;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.role-badge.admin{background:var(--purple-l);color:var(--purple)}
+.role-badge.operario{background:var(--blue-l);color:var(--blue)}
+.role-badge.lectura{background:var(--green-l);color:var(--green)}
+.role-badge.pendiente{background:var(--amber-l);color:var(--amber)}
+
+/* STATUS BADGE */
+.estado-badge{display:inline-flex;align-items:center;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.estado-badge.activo{background:var(--green-l);color:var(--green)}
+.estado-badge.finalizado{background:var(--blue-l);color:var(--blue)}
+.estado-badge.archivado{background:var(--border);color:var(--txt3)}
+
+/* PESADAS */
+.peso-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:8px}
+.peso-fecha{font-size:12px;color:var(--txt3);width:68px;flex-shrink:0}
+.peso-peso{font-size:15px;font-weight:600;flex:1}
+.peso-gdm{font-size:12px;font-weight:500;padding:3px 8px;border-radius:20px}
+.gdm-high{background:var(--green-l);color:var(--green)}.gdm-mid{background:var(--blue-l);color:var(--blue)}
+.gdm-low{background:var(--amber-l);color:var(--amber)}.gdm-vlow{background:var(--red-l);color:var(--red)}
+
+/* DIETA */
+.ingredient-row{margin-bottom:14px}
+.ing-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.ing-name{font-size:13px;font-weight:500}
+.ing-pct{font-size:13px;font-weight:600;font-family:'DM Mono',monospace}
+input[type=range]{width:100%;height:4px;cursor:pointer}
+.ing-stats{display:flex;justify-content:space-between;font-size:11px;color:var(--txt3);margin-top:3px}
+.nutr-row{margin-bottom:8px}
+.nutr-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.nutr-bar-bg{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.nutr-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:7px 14px;border-radius:20px;font-size:13px;border:1px solid var(--border);background:var(--card);color:var(--txt2);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .15s;flex-shrink:0}
+.tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;padding-bottom:calc(20px + var(--safe-bottom));width:100%;max-width:600px;max-height:90vh;overflow-y:auto;animation:slideUp .22s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:var(--border);border:none;border-radius:50%;width:30px;height:30px;font-size:18px;cursor:pointer;color:var(--txt2);display:flex;align-items:center;justify-content:center}
+.locked-overlay{background:var(--border);border-radius:14px;padding:32px 24px;text-align:center;margin-bottom:12px}
+.locked-overlay .lock-icon{font-size:36px;margin-bottom:12px}
+.locked-overlay p{font-size:13px;color:var(--txt2);line-height:1.6}
+.export-opt{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;background:#fff}
+.export-opt:active{border-color:var(--green)}
+.export-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.export-info .et{font-size:13px;font-weight:500}
+.export-info .es{font-size:11px;color:var(--txt3);margin-top:1px}
+
+/* LOTES */
+.lote-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:14px;margin-bottom:12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative}
+.lote-card.activo-sel{border-color:var(--green);box-shadow:0 0 0 2px rgba(26,107,60,.15)}
+.lote-card:active{opacity:.9}
+.lote-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px}
+.lote-name{font-size:15px;font-weight:600;flex:1}
+.lote-cat-badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;flex-shrink:0}
+.lote-cat-badge.desmamante{background:#e8f5ee;color:#1a6b3c}
+.lote-cat-badge.recria{background:#e8f0fe;color:#1565c0}
+.lote-cat-badge.engorde{background:#fff3e0;color:#b85c00}
+.lote-cat-badge.vientre{background:#f3e8ff;color:#6b21a8}
+.lote-stat-row{display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);padding:4px 0;border-bottom:1px solid var(--border)}
+.lote-stat-row:last-child{border:none}
+.lote-stat-row strong{color:var(--txt);font-weight:500}
+.lote-active-indicator{position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--green);display:none}
+.lote-card.activo-sel .lote-active-indicator{display:block}
+.lote-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* PREP */
+.prep-hero{background:var(--green-d);border-radius:14px;padding:16px;margin-bottom:14px;color:#fff}
+.prep-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);gap:12px}
+.prep-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.prep-ing{flex:1}
+.prep-ing .pi-name{font-size:14px;font-weight:500}
+.prep-ing .pi-pct{font-size:11px;color:var(--txt3)}
+.prep-vals{text-align:right}
+.prep-vals .pv-main{font-size:15px;font-weight:600;font-family:'DM Mono',monospace}
+.prep-vals .pv-sub{font-size:11px;color:var(--txt3)}
+.prep-ctrl{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.prep-ctrl:last-child{margin-bottom:0}
+.prep-ctrl label{font-size:12px;color:var(--green);font-weight:500;width:120px;flex-shrink:0}
+.prep-ctrl input{border:1.5px solid rgba(26,107,60,.3);border-radius:8px;padding:6px 10px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff;width:85px;outline:none;color:var(--txt)}
+.prep-ctrl input:focus{border-color:var(--green)}
+.prep-cost-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.prep-cost-row:last-child{border:none;font-weight:600;font-size:14px;padding-top:10px}
+
+/* PRECIOS */
+.precio-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);gap:10px}
+.precio-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.precio-name{flex:1;font-size:14px;font-weight:500}
+.precio-input-wrap{display:flex;align-items:center;gap:4px}
+.precio-input-wrap span{font-size:12px;color:var(--txt3)}
+.precio-input{width:90px;border:1.5px solid var(--border);border-radius:9px;padding:8px 10px;font-size:13px;font-family:'DM Mono',monospace;color:var(--txt);outline:none;text-align:right;background:#fff;-webkit-appearance:none}
+.precio-input:focus{border-color:var(--green)}
+.precio-changed{border-color:var(--amber)!important;background:var(--amber-l)!important}
+.precio-summary{background:var(--green-l);border-radius:12px;padding:14px;margin-top:12px}
+.precio-summary-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+.precio-summary-row.total{font-weight:600;font-size:15px;border-top:1px solid rgba(26,107,60,.2);margin-top:6px;padding-top:8px;color:var(--green)}
+
+/* USERS */
+.user-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px}
+.user-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-info .un{font-size:14px;font-weight:500}
+.user-info .ue{font-size:11px;color:var(--txt3);margin-top:2px}
+.approval-row{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--amber);border-radius:12px;background:var(--amber-l);margin-bottom:10px;flex-wrap:wrap}
+.approval-info{flex:1;min-width:100px}
+.approval-info .an{font-size:13px;font-weight:500}
+.approval-info .ae{font-size:11px;color:var(--txt3)}
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+
+<!-- INSTALL BANNER -->
+<div id="installBanner">
+  <p><strong>Instalar GanadoApp</strong> — acceso sin navegador</p>
+  <button class="ib-btn" onclick="installApp()">Instalar</button>
+  <button class="ib-x" onclick="document.getElementById('installBanner').style.display='none'">×</button>
+</div>
+
+<!-- LOGIN -->
+<div class="auth-wrap" id="viewLogin">
+  <div class="auth-hero">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div><div class="auth-logo-text">GanadoApp</div><div class="auth-logo-sub">Gestión de recría vacuna</div></div>
+    </div>
+    <div class="auth-title">Bienvenido de vuelta</div>
+    <div class="auth-sub">Ingresá con tu cuenta para continuar</div>
+  </div>
+  <div class="auth-body">
+    <h2>Iniciar sesión</h2>
+    <div class="error-msg" id="loginErr"></div>
+    <div class="form-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@email.com" autocomplete="email"></div>
+    <div class="form-group"><label>Contraseña</label>
+      <div class="input-wrap"><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"><button class="eye-btn" onclick="togglePass('loginPass',this)">👁</button></div>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" style="margin-top:4px">Ingresar</button>
+    <div class="auth-switch">¿No tenés cuenta? <a onclick="showView('viewRegister')">Registrate</a></div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+      <div class="sec-title" style="margin-bottom:8px">Acceso rápido de prueba</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn btn-outline" onclick="quickLogin('admin@campo.py','admin123')" style="text-align:left;padding:10px 14px"><span class="role-badge admin" style="margin-right:8px">Admin</span>admin@campo.py</button>
+        <button class="btn btn-outline" onclick="quickLogin('operario@campo.py','op123')" style="text-align:left;padding:10px 14px"><span class="role-badge operario" style="margin-right:8px">Operario</span>operario@campo.py</button>
+        <button class="btn btn-outline" onclick="quickLogin('vista@campo.py','vista123')" style="text-align:left;padding:10px 14px"><span class="role-badge lectura" style="margin-right:8px">Solo lectura</span>vista@campo.py</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="auth-wrap" id="viewRegister" style="display:none">
+  <div class="auth-hero">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+      <div><div class="auth-logo-text">GanadoApp</div><div class="auth-logo-sub">Crear cuenta nueva</div></div>
+    </div>
+    <div class="auth-title">Registrarse</div>
+    <div class="auth-sub">Completá los datos para crear tu cuenta</div>
+  </div>
+  <div class="auth-body">
+    <h2>Nueva cuenta</h2>
+    <div class="error-msg" id="regErr"></div>
+    <div class="success-msg" id="regOk"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group"><label>Nombre</label><input type="text" id="regNombre" placeholder="Juan"></div>
+      <div class="form-group"><label>Apellido</label><input type="text" id="regApellido" placeholder="García"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="tu@email.com"></div>
+    <div class="form-group"><label>Contraseña</label>
+      <div class="input-wrap"><input type="password" id="regPass" placeholder="Mínimo 6 caracteres" oninput="chkStr(this.value,'pb1','ph1')"><button class="eye-btn" onclick="togglePass('regPass',this)">👁</button></div>
+      <div class="pass-strength" id="pb1"></div><div class="pass-hint" id="ph1">Ingresá una contraseña</div>
+    </div>
+    <div class="form-group"><label>Confirmar contraseña</label>
+      <div class="input-wrap"><input type="password" id="regPass2" placeholder="Repetí la contraseña"><button class="eye-btn" onclick="togglePass('regPass2',this)">👁</button></div>
+    </div>
+    <div class="form-group"><label>Rol solicitado</label></div>
+    <div class="role-select">
+      <div class="role-opt selected" data-role="lectura" onclick="selRole(this)"><div class="role-icon">👁</div><div class="role-name">Solo lectura</div></div>
+      <div class="role-opt" data-role="operario" onclick="selRole(this)"><div class="role-icon">🌾</div><div class="role-name">Operario</div></div>
+      <div class="role-opt" data-role="admin" onclick="selRole(this)"><div class="role-icon">⚙️</div><div class="role-name">Admin</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Operario y Admin requieren aprobación.</div>
+    <button class="btn btn-primary" onclick="doRegister()">Crear cuenta</button>
+    <div class="auth-switch">¿Ya tenés cuenta? <a onclick="showView('viewLogin')">Iniciá sesión</a></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="viewApp" style="display:none;flex-direction:column;height:100%">
+  <div class="topbar">
+    <h1 id="topTitle">Resumen</h1>
+    <div class="lote-selector" onclick="openModal('modalLoteSelector')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <div class="lote-selector-name" id="loteActivoNombre">Sin lote</div>
+      <svg viewBox="0 0 24 24" style="width:10px;height:10px"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <button class="notif-btn" onclick="openModal('modalNotif')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="notif-dot" id="notifDot"></div>
+    </button>
+    <div class="user-chip" onclick="openModal('modalPerfil')">
+      <div class="user-avatar" id="topAvatar"></div>
+      <div class="user-chip-name" id="topName"></div>
+    </div>
+  </div>
+
+  <div class="screen active" id="s-dash"><div id="dashContent"></div></div>
+  <div class="screen" id="s-lotes"><div id="lotesContent"></div></div>
+  <div class="screen" id="s-pesadas"><div id="pesadasContent"></div></div>
+  <div class="screen" id="s-dieta"><div id="dietaContent"></div></div>
+  <div class="screen" id="s-prep"><div id="prepContent"></div></div>
+  <div class="screen" id="s-alertas">
+    <div class="card"><h3>GDM por período</h3><div class="chart-wrap" style="height:200px"><canvas id="alertaChart"></canvas></div></div>
+    <div class="sec-title">Períodos bajo meta</div>
+    <div id="alertasList"></div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-item active" id="nb-dash" onclick="goScreen('s-dash','Resumen',this);renderDash()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Resumen
+    </button>
+    <button class="nav-item" id="nb-lotes" onclick="goScreen('s-lotes','Mis Lotes',this);renderLotes()">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Lotes
+    </button>
+    <button class="nav-item" id="nb-pesadas" onclick="navClick('s-pesadas','Pesadas',this,['admin','operario'])">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Pesadas
+    </button>
+    <button class="nav-item" id="nb-dieta" onclick="navClick('s-dieta','Dieta',this,['admin'])">
+      <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Dieta
+    </button>
+    <button class="nav-item" id="nb-prep" onclick="navClick('s-prep','Preparación',this,['admin','operario'])">
+      <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>Preparar
+    </button>
+    <button class="nav-item" id="nb-alertas" onclick="goScreen('s-alertas','Alertas',this);renderAlertas()">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Alertas
+    </button>
+  </nav>
+</div>
+</div>
+
+<!-- MODALES -->
+<div class="modal-overlay" id="modalLoteSelector" onclick="if(event.target===this)closeModal('modalLoteSelector')">
+  <div class="modal">
+    <div class="modal-title">Seleccionar lote <button class="modal-close" onclick="closeModal('modalLoteSelector')">×</button></div>
+    <div id="loteSelectorBody"></div>
+    <button class="btn btn-primary" style="margin-top:8px" onclick="closeModal('modalLoteSelector');goScreen('s-lotes','Mis Lotes',document.getElementById('nb-lotes'));renderLotes()">Gestionar lotes</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modalNuevoLote" onclick="if(event.target===this)closeModal('modalNuevoLote')">
+  <div class="modal">
+    <div class="modal-title" id="modalNuevoLoteTitulo">Nuevo lote <button class="modal-close" onclick="closeModal('modalNuevoLote')">×</button></div>
+    <div class="error-msg" id="nlErr"></div>
+    <div class="form-group"><label>Nombre del lote</label><input type="text" id="nlNombre" placeholder="Ej: Recría Noviembre 2025"></div>
+    <div class="form-group"><label>Categoría</label>
+      <select id="nlCategoria"><option value="desmamante">Desmamante</option><option value="recria">Recría</option><option value="engorde">Engorde</option><option value="vientre">Vientre</option></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group"><label>Fecha inicio</label><input type="date" id="nlFechaInicio"></div>
+      <div class="form-group"><label>Cantidad (cab.)</label><input type="number" id="nlAnimales" placeholder="175"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group"><label>Peso inicial (kg)</label><input type="number" id="nlPesoInicial" placeholder="134"></div>
+      <div class="form-group"><label>GDM objetivo</label><input type="number" id="nlGdmObjetivo" placeholder="0.5" step="0.01"></div>
+    </div>
+    <div class="form-group"><label>Notas (opcional)</label><textarea id="nlNotas" rows="2" placeholder="Observaciones del lote..." style="resize:none"></textarea></div>
+    <button class="btn btn-primary" onclick="guardarLote()">Guardar lote</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="closeModal('modalNuevoLote')">Cancelar</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modalPerfil" onclick="if(event.target===this)closeModal('modalPerfil')">
+  <div class="modal"><div class="modal-title">Mi perfil <button class="modal-close" onclick="closeModal('modalPerfil')">×</button></div><div id="perfilBody"></div></div>
+</div>
+<div class="modal-overlay" id="modalCambioPass" onclick="if(event.target===this)closeModal('modalCambioPass')">
+  <div class="modal">
+    <div class="modal-title">Cambiar contraseña <button class="modal-close" onclick="closeModal('modalCambioPass')">×</button></div>
+    <div class="error-msg" id="cpErr"></div><div class="success-msg" id="cpOk"></div>
+    <div class="form-group"><label>Contraseña actual</label><div class="input-wrap"><input type="password" id="cpActual"><button class="eye-btn" onclick="togglePass('cpActual',this)">👁</button></div></div>
+    <div class="form-group"><label>Nueva contraseña</label><div class="input-wrap"><input type="password" id="cpNueva" oninput="chkStr(this.value,'pb2','ph2')"><button class="eye-btn" onclick="togglePass('cpNueva',this)">👁</button></div><div class="pass-strength" id="pb2"></div><div class="pass-hint" id="ph2"></div></div>
+    <div class="form-group"><label>Confirmar nueva</label><div class="input-wrap"><input type="password" id="cpConfirm"><button class="eye-btn" onclick="togglePass('cpConfirm',this)">👁</button></div></div>
+    <button class="btn btn-primary" onclick="doCambioPass()">Guardar contraseña</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="closeModal('modalCambioPass')">Cancelar</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modalExport" onclick="if(event.target===this)closeModal('modalExport')">
+  <div class="modal">
+    <div class="modal-title">Exportar datos <button class="modal-close" onclick="closeModal('modalExport')">×</button></div>
+    <div class="success-msg" id="expOk"></div>
+    <div class="export-opt" onclick="exportCSV('pesadas')"><div class="export-icon" style="background:var(--green-l)">📊</div><div class="export-info"><div class="et">Pesadas del lote activo — CSV</div><div class="es">Fechas, pesos y GDM</div></div></div>
+    <div class="export-opt" onclick="exportCSV('dieta')"><div class="export-icon" style="background:var(--blue-l)">🌾</div><div class="export-info"><div class="et">Formulación de dieta — CSV</div><div class="es">Composición, nutrientes y costos</div></div></div>
+    <div class="export-opt" onclick="exportCSV('prep')"><div class="export-icon" style="background:var(--amber-l)">⚖️</div><div class="export-info"><div class="et">Plan de preparación — CSV</div><div class="es">Cantidades por día y por lote</div></div></div>
+    <div class="export-opt" onclick="exportCSV('todoslotes')"><div class="export-icon" style="background:var(--purple-l)">📋</div><div class="export-info"><div class="et">Resumen todos los lotes — CSV</div><div class="es">Comparativa de rendimiento</div></div></div>
+    <div style="font-size:11px;color:var(--txt3);text-align:center;margin-top:6px">Compatible con Excel y Google Sheets</div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalNotif" onclick="if(event.target===this)closeModal('modalNotif')">
+  <div class="modal"><div class="modal-title">Notificaciones <button class="modal-close" onclick="closeModal('modalNotif')">×</button></div><div id="notifList"></div></div>
+</div>
+<div class="modal-overlay" id="modalNuevoUser" onclick="if(event.target===this)closeModal('modalNuevoUser')">
+  <div class="modal">
+    <div class="modal-title">Agregar usuario <button class="modal-close" onclick="closeModal('modalNuevoUser')">×</button></div>
+    <div class="error-msg" id="nuErr"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group"><label>Nombre</label><input type="text" id="nuNombre"></div>
+      <div class="form-group"><label>Apellido</label><input type="text" id="nuApellido"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="nuEmail"></div>
+    <div class="form-group"><label>Contraseña</label><input type="password" id="nuPass" placeholder="Mín. 6 caracteres"></div>
+    <div class="form-group"><label>Rol</label><select id="nuRol"><option value="lectura">Solo lectura</option><option value="operario">Operario</option><option value="admin">Administrador</option></select></div>
+    <button class="btn btn-primary" onclick="addUser()">Agregar usuario</button>
+  </div>
+</div>
+
+<script>
+// ─── USERS ───────────────────────────────────────────────────────
+let users=[
+  {id:1,nombre:'Carlos',apellido:'Mendez',email:'admin@campo.py',pass:'admin123',role:'admin',color:'#1a6b3c',pendingRole:null},
+  {id:2,nombre:'Ana',apellido:'Rojas',email:'operario@campo.py',pass:'op123',role:'operario',color:'#1565c0',pendingRole:null},
+  {id:3,nombre:'Luis',apellido:'Torres',email:'vista@campo.py',pass:'vista123',role:'lectura',color:'#b85c00',pendingRole:null},
+];
+let currentUser=null;
+
+// ─── LOTES ───────────────────────────────────────────────────────
+let loteActivoId=1;
+let lotes=[
+  {
+    id:1, nombre:'Lote Jun–Oct 2025', categoria:'desmamante', estado:'finalizado',
+    fechaInicio:'2025-06-19', fechaFin:'2025-10-16',
+    animales:175, pesoInicial:134, gdmObjetivo:0.4, notas:'Lote desmamante de 7 meses promedio.',
+    pesadas:[
+      {f:'19/6',p:135,gdm:null},{f:'21/6',p:135,gdm:0.364},{f:'26/6',p:136,gdm:0.219},
+      {f:'29/6',p:137,gdm:0.302},{f:'3/7',p:138,gdm:0.227},{f:'5/7',p:139,gdm:0.452},
+      {f:'7/7',p:140,gdm:0.452},{f:'9/7',p:142,gdm:0.898},{f:'13/7',p:143,gdm:0.455},
+      {f:'17/7',p:145,gdm:0.455},{f:'22/7',p:147,gdm:0.364},{f:'30/7',p:149,gdm:0.228},
+      {f:'6/8',p:151,gdm:0.260},{f:'17/8',p:153,gdm:0.165},{f:'22/8',p:154,gdm:0.364},
+      {f:'29/8',p:156,gdm:0.260},{f:'1/9',p:158,gdm:0.607},{f:'7/9',p:160,gdm:0.303},
+      {f:'17/9',p:162,gdm:0.182},{f:'22/9',p:163,gdm:0.364},{f:'24/9',p:165,gdm:0.910},
+      {f:'26/9',p:167,gdm:0.910},{f:'3/10',p:169,gdm:0.260},{f:'6/10',p:171,gdm:0.607},
+      {f:'10/10',p:173,gdm:0.455},{f:'12/10',p:174,gdm:0.546},{f:'16/10',p:175,gdm:0.273}
+    ],
+    dieta:{
+      burlanda:{pct:60.5,precio:2610,pb:30,em:1.67,color:'#2d8a52'},
+      maiz:    {pct:25.9,precio:1900,pb:8, em:3.19,color:'#b85c00'},
+      urea:    {pct:2.1, precio:6000,pb:288,em:0,  color:'#1565c0'},
+      sal:     {pct:8.0, precio:1700,pb:0,  em:0,  color:'#73726c'},
+      calcio:  {pct:3.5, precio:550, pb:0,  em:0,  color:'#9c9c96'},
+    },
+    params:{animales:175,pesoPromedio:175,consumoPV:1.0}
+  }
+];
+let nextLoteId=2;
+let editingLoteId=null;
+
+const ROLE_LABELS={admin:'Administrador',operario:'Operario',lectura:'Solo lectura',pendiente:'Pendiente'};
+const CAT_LABELS={desmamante:'Desmamante',recria:'Recría',engorde:'Engorde',vientre:'Vientre'};
+const charts={};
+let deferredPrompt=null;
+
+// helpers
+function getLote(id){return lotes.find(l=>l.id===id);}
+function getActivo(){return getLote(loteActivoId);}
+
+// ─── PWA ─────────────────────────────────────────────────────────
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').style.display='flex';});
+window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').style.display='none';});
+async function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBanner').style.display='none';}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
+
+// ─── AUTH ─────────────────────────────────────────────────────────
+function showView(id){['viewLogin','viewRegister','viewApp'].forEach(v=>{document.getElementById(v).style.display='none';});const t=document.getElementById(id);t.style.display='flex';if(id==='viewApp')t.style.flexDirection='column';clearMsgs();}
+function clearMsgs(){document.querySelectorAll('.error-msg,.success-msg').forEach(m=>{m.style.display='none';m.textContent='';})}
+function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent=msg;e.style.display='block';}}
+function showOk(id,msg){const e=document.getElementById(id);if(e){e.textContent=msg;e.style.display='block';}}
+function togglePass(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
+function selRole(el){document.querySelectorAll('.role-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
+function chkStr(v,bId,hId){const bar=document.getElementById(bId),hint=document.getElementById(hId);if(!bar||!hint)return;let s=0;if(v.length>=6)s++;if(v.length>=10)s++;if(/[A-Z0-9]/.test(v))s++;if(/[^a-zA-Z0-9]/.test(v))s++;s=Math.min(s,4);const c=[{w:'0%',c:'var(--border)',t:'Ingresá una contraseña'},{w:'25%',c:'var(--red)',t:'Muy débil'},{w:'50%',c:'var(--amber)',t:'Débil'},{w:'75%',c:'#f59e0b',t:'Buena'},{w:'100%',c:'var(--green)',t:'Fuerte'}][s];bar.style.width=c.w;bar.style.background=c.c;hint.textContent=c.t;hint.style.color=c.c;}
+function quickLogin(e,p){document.getElementById('loginEmail').value=e;document.getElementById('loginPass').value=p;doLogin();}
+function doLogin(){const email=document.getElementById('loginEmail').value.trim();const pass=document.getElementById('loginPass').value;clearMsgs();if(!email||!pass){showErr('loginErr','Completá todos los campos.');return;}const u=users.find(u=>u.email===email&&u.pass===pass);if(!u){showErr('loginErr','Email o contraseña incorrectos.');return;}currentUser=u;initApp();}
+function doRegister(){const nombre=document.getElementById('regNombre').value.trim();const apellido=document.getElementById('regApellido').value.trim();const email=document.getElementById('regEmail').value.trim();const pass=document.getElementById('regPass').value;const pass2=document.getElementById('regPass2').value;const role=document.querySelector('.role-opt.selected')?.dataset.role||'lectura';clearMsgs();if(!nombre||!apellido||!email||!pass){showErr('regErr','Completá todos los campos.');return;}if(pass.length<6){showErr('regErr','Mínimo 6 caracteres.');return;}if(pass!==pass2){showErr('regErr','Las contraseñas no coinciden.');return;}if(users.find(u=>u.email===email)){showErr('regErr','Ya existe ese email.');return;}const colors=['#1a6b3c','#1565c0','#b85c00','#6b21a8'];users.push({id:Date.now(),nombre,apellido,email,pass,role:role==='lectura'?'lectura':'pendiente',pendingRole:role!=='lectura'?role:null,color:colors[Math.floor(Math.random()*colors.length)]});updateBadge();showOk('regOk',role!=='lectura'?'Cuenta creada. Rol pendiente de aprobación.':'¡Cuenta creada!');setTimeout(()=>showView('viewLogin'),2000);}
+function doLogout(){closeModal('modalPerfil');currentUser=null;Object.keys(charts).forEach(k=>{try{charts[k].destroy()}catch(e){}delete charts[k];});showView('viewLogin');}
+function doCambioPass(){clearMsgs();const a=document.getElementById('cpActual').value,n=document.getElementById('cpNueva').value,c=document.getElementById('cpConfirm').value;if(!a||!n||!c){showErr('cpErr','Completá todos los campos.');return;}if(a!==currentUser.pass){showErr('cpErr','Contraseña actual incorrecta.');return;}if(n.length<6){showErr('cpErr','Mínimo 6 caracteres.');return;}if(n!==c){showErr('cpErr','Las contraseñas no coinciden.');return;}currentUser.pass=n;users.find(u=>u.id===currentUser.id).pass=n;showOk('cpOk','Contraseña actualizada.');setTimeout(()=>closeModal('modalCambioPass'),1500);}
+
+// ─── GESTIÓN DE LOTES ─────────────────────────────────────────────
+function abrirNuevoLote(){
+  editingLoteId=null;
+  clearMsgs();
+  document.getElementById('modalNuevoLoteTitulo').innerHTML='Nuevo lote <button class="modal-close" onclick="closeModal(\'modalNuevoLote\')">×</button>';
+  ['nlNombre','nlAnimales','nlPesoInicial','nlGdmObjetivo','nlNotas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('nlCategoria').value='desmamante';
+  document.getElementById('nlFechaInicio').value=new Date().toISOString().split('T')[0];
+  openModal('modalNuevoLote');
+}
+
+function abrirEditarLote(id){
+  editingLoteId=id;
+  const l=getLote(id);if(!l)return;
+  clearMsgs();
+  document.getElementById('modalNuevoLoteTitulo').innerHTML='Editar lote <button class="modal-close" onclick="closeModal(\'modalNuevoLote\')">×</button>';
+  document.getElementById('nlNombre').value=l.nombre;
+  document.getElementById('nlCategoria').value=l.categoria;
+  document.getElementById('nlFechaInicio').value=l.fechaInicio||'';
+  document.getElementById('nlAnimales').value=l.animales;
+  document.getElementById('nlPesoInicial').value=l.pesoInicial;
+  document.getElementById('nlGdmObjetivo').value=l.gdmObjetivo;
+  document.getElementById('nlNotas').value=l.notas||'';
+  openModal('modalNuevoLote');
+}
+
+function guardarLote(){
+  clearMsgs();
+  const nombre=document.getElementById('nlNombre').value.trim();
+  const categoria=document.getElementById('nlCategoria').value;
+  const fechaInicio=document.getElementById('nlFechaInicio').value;
+  const animales=parseInt(document.getElementById('nlAnimales').value)||0;
+  const pesoInicial=parseFloat(document.getElementById('nlPesoInicial').value)||0;
+  const gdmObjetivo=parseFloat(document.getElementById('nlGdmObjetivo').value)||0.4;
+  const notas=document.getElementById('nlNotas').value.trim();
+  if(!nombre){showErr('nlErr','El nombre es obligatorio.');return;}
+  if(!animales||!pesoInicial){showErr('nlErr','Cantidad de animales y peso inicial son obligatorios.');return;}
+
+  if(editingLoteId){
+    const l=getLote(editingLoteId);
+    if(l){Object.assign(l,{nombre,categoria,fechaInicio,animales,pesoInicial,gdmObjetivo,notas});}
+  } else {
+    // Lote nuevo con dieta base copiada del lote activo
+    const base=getActivo();
+    const nuevaDieta=base?JSON.parse(JSON.stringify(base.dieta)):{
+      burlanda:{pct:60.5,precio:2610,pb:30,em:1.67,color:'#2d8a52'},
+      maiz:{pct:25.9,precio:1900,pb:8,em:3.19,color:'#b85c00'},
+      urea:{pct:2.1,precio:6000,pb:288,em:0,color:'#1565c0'},
+      sal:{pct:8.0,precio:1700,pb:0,em:0,color:'#73726c'},
+      calcio:{pct:3.5,precio:550,pb:0,em:0,color:'#9c9c96'},
+    };
+    const newLote={id:nextLoteId++,nombre,categoria,estado:'activo',fechaInicio,fechaFin:null,animales,pesoInicial,gdmObjetivo,notas,pesadas:[],dieta:nuevaDieta,params:{animales,pesoPromedio:pesoInicial,consumoPV:1.0}};
+    lotes.push(newLote);
+    loteActivoId=newLote.id;
+    updateLoteSelector();
+  }
+  closeModal('modalNuevoLote');
+  renderLotes();
+  renderDash();
+}
+
+function cambiarEstadoLote(id,estado){
+  const l=getLote(id);if(!l)return;
+  l.estado=estado;
+  if(estado==='finalizado'&&!l.fechaFin)l.fechaFin=new Date().toISOString().split('T')[0];
+  renderLotes();
+  updateLoteSelector();
+}
+
+function eliminarLote(id){
+  if(lotes.length<=1){alert('No podés eliminar el único lote.');return;}
+  if(!confirm('¿Eliminar este lote y todos sus datos? Esta acción no se puede deshacer.'))return;
+  lotes=lotes.filter(l=>l.id!==id);
+  if(loteActivoId===id){loteActivoId=lotes[0].id;}
+  renderLotes();updateLoteSelector();renderDash();
+}
+
+function seleccionarLote(id){
+  loteActivoId=id;
+  updateLoteSelector();
+  closeModal('modalLoteSelector');
+  renderDash();
+  // Reset prep params to lote
+  const l=getActivo();
+  if(l)l.params={animales:l.animales,pesoPromedio:l.pesadas.length?l.pesadas[l.pesadas.length-1].p:l.pesoInicial,consumoPV:1.0};
+}
+
+function updateLoteSelector(){
+  const l=getActivo();
+  const el=document.getElementById('loteActivoNombre');
+  if(el)el.textContent=l?l.nombre:'Sin lote';
+}
+
+function renderLoteSelectorModal(){
+  const body=document.getElementById('loteSelectorBody');
+  if(!body)return;
+  body.innerHTML=lotes.map(l=>{
+    const gdms=l.pesadas.filter(p=>p.gdm!==null);
+    const gdmProm=gdms.length?(gdms.reduce((s,p)=>s+p.gdm,0)/gdms.length).toFixed(3):'—';
+    const pesoAct=l.pesadas.length?l.pesadas[l.pesadas.length-1].p:l.pesoInicial;
+    const isActivo=l.id===loteActivoId;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;margin-bottom:8px;border:1.5px solid ${isActivo?'var(--green)':'var(--border)'};background:${isActivo?'var(--green-l)':'#fff'};cursor:pointer" onclick="seleccionarLote(${l.id})">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px">${l.nombre}${isActivo?'<span style="font-size:10px;background:var(--green);color:#fff;padding:2px 7px;border-radius:10px">Activo</span>':''}</div>
+        <div style="font-size:11px;color:var(--txt3);margin-top:3px">${CAT_LABELS[l.categoria]} · ${l.animales} cab. · ${pesoAct} kg · GDM: ${gdmProm} kg/d</div>
+      </div>
+      <span class="estado-badge ${l.estado}">${l.estado.charAt(0).toUpperCase()+l.estado.slice(1)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────
+function goScreen(id,title,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('topTitle').textContent=title||'';
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+}
+function navClick(sid,title,btn,roles){
+  goScreen(sid,title,btn);
+  if(!roles.includes(currentUser?.role)){
+    const cid=sid==='s-pesadas'?'pesadasContent':sid==='s-dieta'?'dietaContent':'prepContent';
+    document.getElementById(cid).innerHTML=`<div class="locked-overlay"><div class="lock-icon">🔒</div><p><strong>Acceso restringido</strong><br>Rol requerido: <b>${roles.map(r=>ROLE_LABELS[r]).join(' o ')}</b>.<br>Tu rol: <b>${ROLE_LABELS[currentUser.role]}</b>.</p></div>`;
+    return;
+  }
+  if(sid==='s-pesadas')renderPesadas();
+  if(sid==='s-dieta')renderDieta();
+  if(sid==='s-prep')renderPrep();
+}
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='modalNotif')renderNotif();
+  if(id==='modalCambioPass')clearMsgs();
+  if(id==='modalLoteSelector')renderLoteSelectorModal();
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// BADGES
+function getPending(){return users.filter(u=>u.pendingRole);}
+function updateBadge(){const n=getPending().length;const d=document.getElementById('notifDot');if(d)d.style.display=n>0?'block':'none';}
+function renderNotif(){const list=document.getElementById('notifList');if(!list)return;const p=getPending();if(!p.length){list.innerHTML='<div style="text-align:center;padding:28px;color:var(--txt3);font-size:13px">Sin notificaciones</div>';return;}list.innerHTML=p.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--amber-l);border-radius:12px;margin-bottom:8px"><div style="width:38px;height:38px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff">${(u.nombre[0]+u.apellido[0]).toUpperCase()}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${u.nombre} ${u.apellido}</div><div style="font-size:11px;color:var(--txt3)">Solicita: <b>${ROLE_LABELS[u.pendingRole]}</b></div></div>${currentUser?.role==='admin'?`<div style="display:flex;gap:5px"><button class="btn btn-primary btn-sm" onclick="approveRole(${u.id})">✓</button><button class="btn btn-outline btn-sm" onclick="rejectRole(${u.id})">✗</button></div>`:''}</div>`).join('');}
+function approveRole(id){const u=users.find(u=>u.id===id);if(!u)return;u.role=u.pendingRole;u.pendingRole=null;updateBadge();renderNotif();}
+function rejectRole(id){const u=users.find(u=>u.id===id);if(!u)return;u.pendingRole=null;updateBadge();renderNotif();}
+
+// EXPORT
+function exportCSV(tipo){
+  const l=getActivo();
+  let csv='',fn='';
+  if(tipo==='pesadas'&&l){fn=`pesadas_${l.nombre.replace(/\s+/g,'_')}.csv`;csv='Fecha,Peso (kg),GDM (kg/dia)\n'+l.pesadas.map(p=>`${p.f},${p.p},${p.gdm!==null?p.gdm.toFixed(3):'-'}`).join('\n');}
+  else if(tipo==='dieta'&&l){fn='dieta.csv';csv='Insumo,Porcentaje,Precio Gs/kg,PB,EM\n'+Object.entries(l.dieta).map(([k,v])=>`${k},${v.pct}%,${v.precio},${v.pb}%,${v.em}`).join('\n');}
+  else if(tipo==='prep'&&l){fn='preparacion.csv';const p=l.params;const ckd=(p.pesoPromedio*p.consumoPV/100);csv='Insumo,% mezcla,kg/cabeza/dia,kg total lote/dia\n';Object.entries(l.dieta).forEach(([k,v])=>{csv+=`${k},${v.pct}%,${(v.pct/100*ckd).toFixed(3)},${(v.pct/100*ckd*p.animales).toFixed(1)}\n`;});}
+  else if(tipo==='todoslotes'){fn='todos_los_lotes.csv';csv='Lote,Categoría,Estado,Animales,Peso inicial,Peso final,GDM promedio,Días\n';lotes.forEach(l=>{const gdms=l.pesadas.filter(p=>p.gdm!==null);const gdmP=gdms.length?(gdms.reduce((s,p)=>s+p.gdm,0)/gdms.length).toFixed(3):'—';const pf=l.pesadas.length?l.pesadas[l.pesadas.length-1].p:'—';csv+=`${l.nombre},${CAT_LABELS[l.categoria]},${l.estado},${l.animales},${l.pesoInicial},${pf},${gdmP},${l.pesadas.length}\n`;});}
+  if(!csv){alert('No hay datos para exportar.');return;}
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const el=document.createElement('a');el.href=url;el.download=fn;el.click();URL.revokeObjectURL(url);
+  showOk('expOk','Descargando "'+fn+'"...');
+}
+
+// ─── APP INIT ─────────────────────────────────────────────────────
+function initApp(){
+  showView('viewApp');
+  const u=currentUser;
+  const ini=(u.nombre[0]+u.apellido[0]).toUpperCase();
+  document.getElementById('topAvatar').textContent=ini;
+  document.getElementById('topAvatar').style.background=u.color;
+  document.getElementById('topName').textContent=u.nombre;
+  updateBadge();updateLoteSelector();
+  document.getElementById('nb-pesadas').classList.toggle('locked',u.role==='lectura');
+  document.getElementById('nb-dieta').classList.toggle('locked',u.role!=='admin');
+  document.getElementById('nb-prep').classList.toggle('locked',u.role==='lectura');
+  document.getElementById('perfilBody').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);margin-bottom:16px">
+      <div style="width:54px;height:54px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:#fff">${ini}</div>
+      <div><div style="font-size:16px;font-weight:600">${u.nombre} ${u.apellido}</div><div style="font-size:12px;color:var(--txt3)">${u.email}</div><div style="margin-top:5px"><span class="role-badge ${u.role}">${ROLE_LABELS[u.role]}</span></div></div>
+    </div>
+    ${[['Dashboard y alertas','✓','green'],['Pesadas, preparación y lotes',u.role!=='lectura'?'✓':'✗',u.role!=='lectura'?'green':'red'],['Formulación y precios',u.role==='admin'?'✓':'✗',u.role==='admin'?'green':'red']].map(([l,s,c])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${l}</span><span style="color:var(--${c});font-weight:600">${s}</span></div>`).join('')}
+    <button class="btn btn-outline" style="margin-top:16px" onclick="closeModal('modalPerfil');openModal('modalCambioPass')">Cambiar contraseña</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="closeModal('modalPerfil');openModal('modalExport')">Exportar datos</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="doLogout()">Cerrar sesión</button>`;
+  goScreen('s-dash','Resumen',document.getElementById('nb-dash'));
+  renderDash();
+}
+
+// ─── CHARTS HELPER ───────────────────────────────────────────────
+function dc(id){if(charts[id]){try{charts[id].destroy()}catch(e){}delete charts[id];}}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────
+function renderDash(){
+  const l=getActivo();
+  const div=document.getElementById('dashContent');
+  if(!l){div.innerHTML=`<div style="text-align:center;padding:40px 20px"><div style="font-size:36px;margin-bottom:12px">🐄</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">Sin lote activo</div><p style="font-size:13px;color:var(--txt3);margin-bottom:20px">Creá tu primer lote para comenzar el seguimiento.</p><button class="btn btn-primary" onclick="goScreen('s-lotes','Mis Lotes',document.getElementById('nb-lotes'));renderLotes()">Ir a Lotes</button></div>`;return;}
+  const gdms=l.pesadas.filter(p=>p.gdm!==null);
+  const gdmProm=gdms.length?(gdms.reduce((s,p)=>s+p.gdm,0)/gdms.length):0;
+  const pesoAct=l.pesadas.length?l.pesadas[l.pesadas.length-1].p:l.pesoInicial;
+  const diasTotales=l.pesadas.length;
+  const costo=Object.values(l.dieta).reduce((s,v)=>s+(v.pct/100)*v.precio,0);
+  const bajoMeta=gdms.filter(p=>p.gdm<l.gdmObjetivo).length;
+
+  div.innerHTML=`
+    <div class="status-bar">
+      <div class="status-item"><div class="sv">${l.animales}</div><div class="sl">Animales</div></div>
+      <div class="status-item"><div class="sv">${pesoAct} kg</div><div class="sl">Peso actual</div></div>
+      <div class="status-item"><div class="sv">${gdmProm.toFixed(3)}</div><div class="sl">GDM prom.</div></div>
+      <div class="status-item"><div class="sv">${diasTotales} reg.</div><div class="sl">Pesadas</div></div>
+    </div>
+    <div class="metrics">
+      <div class="metric green"><div class="lbl">GDM promedio</div><div class="val">${gdmProm.toFixed(3)}</div><div class="sub">kg/cab/día</div></div>
+      <div class="metric amber"><div class="lbl">Meta GDM</div><div class="val">${l.gdmObjetivo}</div><div class="sub">kg/cab/día</div></div>
+      <div class="metric blue"><div class="lbl">Costo/kg ración</div><div class="val" id="dashCostoKg">₲${Math.round(costo).toLocaleString()}</div><div class="sub">por kg</div></div>
+      <div class="metric red"><div class="lbl">Períodos bajo meta</div><div class="val">${bajoMeta}</div><div class="sub">de ${gdms.length} registros</div></div>
+    </div>
+    <div class="card"><h3>GDM por período (kg/día)</h3><div class="chart-wrap" style="height:200px"><canvas id="dashGdm"></canvas></div></div>
+    <div class="card"><h3>Peso promedio del lote (kg)</h3><div class="chart-wrap" style="height:160px"><canvas id="dashPeso"></canvas></div></div>
+    ${bajoMeta>0?`<div class="card"><h3>Alertas</h3><div class="alert-item red"><div class="alert-dot red"></div><div class="alert-txt">${bajoMeta} período${bajoMeta>1?'s':''} bajo meta (${l.gdmObjetivo} kg/día)<span>Revisar consumo y formulación de dieta</span></div></div></div>`:''}`;
+
+  dc('dashGdm');dc('dashPeso');
+  if(gdms.length){
+    charts.dashGdm=new Chart(document.getElementById('dashGdm'),{type:'bar',data:{labels:gdms.map(p=>p.f),datasets:[{data:gdms.map(p=>p.gdm),backgroundColor:gdms.map(p=>p.gdm>=l.gdmObjetivo?'#2d8a52':p.gdm>=(l.gdmObjetivo*0.7)?'#b85c00':'#c0392b'),borderRadius:3},{data:gdms.map(()=>l.gdmObjetivo),type:'line',borderColor:'#9c9c96',borderDash:[4,3],borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:12}},y:{min:0,ticks:{callback:v=>v.toFixed(1)}}}}});
+  }
+  if(l.pesadas.length){
+    charts.dashPeso=new Chart(document.getElementById('dashPeso'),{type:'line',data:{labels:l.pesadas.map(p=>p.f),datasets:[{data:l.pesadas.map(p=>p.p),borderColor:'#1a6b3c',backgroundColor:'rgba(26,107,60,.08)',fill:true,pointRadius:2,borderWidth:2,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:10}},y:{ticks:{callback:v=>v+' kg'}}}}});
+  }
+}
+
+// ─── LOTES SCREEN ────────────────────────────────────────────────
+function renderLotes(){
+  const div=document.getElementById('lotesContent');
+  const activos=lotes.filter(l=>l.estado==='activo');
+  const otros=lotes.filter(l=>l.estado!=='activo');
+
+  div.innerHTML=`
+    ${['admin','operario'].includes(currentUser?.role)?`<button class="btn btn-primary" style="margin-bottom:16px" onclick="abrirNuevoLote()">+ Nuevo lote</button>`:''}
+    ${activos.length?`<div class="sec-title">Lotes activos (${activos.length})</div>${activos.map(l=>renderLoteCard(l)).join('')}`:''}
+    ${otros.length?`<div class="sec-title" style="margin-top:8px">Finalizados / Archivados (${otros.length})</div>${otros.map(l=>renderLoteCard(l)).join('')}`:''}
+    <div class="card" style="margin-top:8px">
+      <h3>Comparativa de lotes</h3>
+      <div style="overflow-x:auto">
+        <table style="width:100%;font-size:12px;border-collapse:collapse">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:6px 4px;color:var(--txt2);font-weight:500">Lote</th>
+            <th style="text-align:center;padding:6px 4px;color:var(--txt2);font-weight:500">Cab.</th>
+            <th style="text-align:center;padding:6px 4px;color:var(--txt2);font-weight:500">GDM</th>
+            <th style="text-align:center;padding:6px 4px;color:var(--txt2);font-weight:500">kg</th>
+            <th style="text-align:center;padding:6px 4px;color:var(--txt2);font-weight:500">Estado</th>
+          </tr></thead>
+          <tbody>
+            ${lotes.map(l=>{
+              const gdms=l.pesadas.filter(p=>p.gdm!==null);
+              const gdmP=gdms.length?(gdms.reduce((s,p)=>s+p.gdm,0)/gdms.length).toFixed(3):'—';
+              const pf=l.pesadas.length?l.pesadas[l.pesadas.length-1].p:l.pesoInicial;
+              const isA=l.id===loteActivoId;
+              return `<tr style="border-bottom:1px solid var(--border);background:${isA?'var(--green-l)':'transparent'}">
+                <td style="padding:7px 4px;font-weight:${isA?'600':'400'}">${l.nombre.length>14?l.nombre.slice(0,14)+'…':l.nombre}</td>
+                <td style="text-align:center;padding:7px 4px">${l.animales}</td>
+                <td style="text-align:center;padding:7px 4px;color:${parseFloat(gdmP)>=l.gdmObjetivo?'var(--green)':'var(--amber)'}">${gdmP}</td>
+                <td style="text-align:center;padding:7px 4px">${pf}</td>
+                <td style="text-align:center;padding:7px 4px"><span class="estado-badge ${l.estado}" style="font-size:10px;padding:2px 6px">${l.estado.charAt(0).toUpperCase()+l.estado.slice(1)}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderLoteCard(l){
+  const gdms=l.pesadas.filter(p=>p.gdm!==null);
+  const gdmProm=gdms.length?(gdms.reduce((s,p)=>s+p.gdm,0)/gdms.length).toFixed(3):'—';
+  const pesoAct=l.pesadas.length?l.pesadas[l.pesadas.length-1].p:l.pesoInicial;
+  const isActivo=l.id===loteActivoId;
+  const canEdit=['admin','operario'].includes(currentUser?.role);
+  return `<div class="lote-card ${isActivo?'activo-sel':''}" onclick="seleccionarLote(${l.id});renderDash()">
+    <div class="lote-active-indicator"></div>
+    <div class="lote-header">
+      <div class="lote-name">${l.nombre}</div>
+      <span class="lote-cat-badge ${l.categoria}">${CAT_LABELS[l.categoria]}</span>
+    </div>
+    <div class="lote-stat-row"><span>Animales</span><strong>${l.animales} cab.</strong></div>
+    <div class="lote-stat-row"><span>Peso inicial → actual</span><strong>${l.pesoInicial} → ${pesoAct} kg</strong></div>
+    <div class="lote-stat-row"><span>GDM promedio</span><strong style="color:${parseFloat(gdmProm)>=(l.gdmObjetivo||0.4)?'var(--green)':'var(--amber)'}">${gdmProm} kg/día</strong></div>
+    <div class="lote-stat-row"><span>Fecha inicio</span><strong>${l.fechaInicio||'—'}</strong></div>
+    <div class="lote-stat-row"><span>Estado</span><strong><span class="estado-badge ${l.estado}">${l.estado.charAt(0).toUpperCase()+l.estado.slice(1)}</span></strong></div>
+    ${l.notas?`<div style="font-size:11px;color:var(--txt3);margin-top:8px;font-style:italic">${l.notas}</div>`:''}
+    ${canEdit?`<div class="lote-actions" onclick="event.stopPropagation()">
+      <button class="btn btn-outline btn-sm" onclick="abrirEditarLote(${l.id})">Editar</button>
+      ${l.estado==='activo'?`<button class="btn btn-outline btn-sm" onclick="cambiarEstadoLote(${l.id},'finalizado')">Finalizar</button>`:`<button class="btn btn-outline btn-sm" onclick="cambiarEstadoLote(${l.id},'activo')">Reactivar</button>`}
+      ${l.estado==='finalizado'?`<button class="btn btn-outline btn-sm" onclick="cambiarEstadoLote(${l.id},'archivado')">Archivar</button>`:''}
+      ${lotes.length>1?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);border:none" onclick="eliminarLote(${l.id})">Eliminar</button>`:''}
+    </div>`:''}
+  </div>`;
+}
+
+// ─── PESADAS ─────────────────────────────────────────────────────
+function renderPesadas(){
+  const l=getActivo();if(!l)return;
+  const div=document.getElementById('pesadasContent');
+  div.innerHTML=`<div class="tabs"><button class="tab active" id="tl" onclick="swP('lista')">Historial</button><button class="tab" id="tn" onclick="swP('nueva')">+ Nueva pesada</button></div>
+  <div id="ptl">
+    <div class="card"><h3>Evolución GDM — ${l.nombre}</h3><div class="chart-wrap" style="height:200px"><canvas id="pesChart"></canvas></div></div>
+    <div class="sec-title">Registro completo (${l.pesadas.length} entradas)</div>
+    ${[...l.pesadas].reverse().map(p=>{const g=p.gdm===null?'':`<span class="peso-gdm ${p.gdm>=(l.gdmObjetivo||0.4)?'gdm-high':p.gdm>=(l.gdmObjetivo||0.4)*0.7?'gdm-low':'gdm-vlow'}">${p.gdm.toFixed(3)} kg/d</span>`;return `<div class="peso-row"><span class="peso-fecha">${p.f}</span><span class="peso-peso">${p.p} kg</span>${g}</div>`;}).join('')}
+    ${!l.pesadas.length?'<div style="text-align:center;padding:24px;color:var(--txt3);font-size:13px">Sin pesadas registradas aún</div>':''}
+  </div>
+  <div id="ptn" style="display:none">
+    <div class="card">
+      <div class="sec-title">Registrar pesada — ${l.nombre}</div>
+      <div class="form-group"><label>Fecha</label><input type="date" id="nF" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group"><label>Peso promedio (kg)</label><input type="number" id="nP" placeholder="Ej: 178" oninput="calcG()"></div>
+      <div class="form-group"><label>Cantidad de animales</label><input type="number" id="nC" value="${l.animales}"></div>
+      <div id="gRes" style="display:none;background:var(--green-l);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:12px;color:var(--txt2)">GDM calculado:</div><div id="gVal" style="font-size:22px;font-weight:600;color:var(--green)"></div></div>
+      <button class="btn btn-primary" onclick="savePes()">Guardar pesada</button>
+    </div>
+  </div>`;
+
+  dc('pesChart');
+  const gdms=l.pesadas.filter(p=>p.gdm!==null);
+  if(gdms.length){
+    charts.pesChart=new Chart(document.getElementById('pesChart'),{type:'line',data:{labels:gdms.map(p=>p.f),datasets:[{data:gdms.map(p=>p.gdm),borderColor:'#1565c0',backgroundColor:'rgba(21,101,192,.08)',fill:true,pointRadius:3,borderWidth:1.5,tension:0.3},{data:gdms.map(()=>l.gdmObjetivo||0.4),type:'line',borderColor:'#c0392b',borderDash:[4,3],borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:10}},y:{min:0}}}});
+  }
+}
+function swP(t){document.getElementById('ptl').style.display=t==='lista'?'block':'none';document.getElementById('ptn').style.display=t==='nueva'?'block':'none';document.getElementById('tl').classList.toggle('active',t==='lista');document.getElementById('tn').classList.toggle('active',t==='nueva');}
+function calcG(){
+  const l=getActivo();if(!l)return;
+  const nP=parseFloat(document.getElementById('nP')?.value);
+  if(!nP){document.getElementById('gRes').style.display='none';return;}
+  const ultP=l.pesadas.length?l.pesadas[l.pesadas.length-1]:null;
+  if(!ultP){document.getElementById('gRes').style.display='none';return;}
+  const fN=new Date(document.getElementById('nF').value);
+  const parts=ultP.f.split('/');
+  const months={1:'01',2:'02',3:'03',4:'04',5:'05',6:'06',7:'07',8:'08',9:'09',10:'10',11:'11',12:'12'};
+  const fU=new Date(`2025-${months[parseInt(parts[1])]}-${parts[0].length===1?'0'+parts[0]:parts[0]}`);
+  const dias=Math.max(1,Math.round((fN-fU)/86400000));
+  document.getElementById('gRes').style.display='block';
+  document.getElementById('gVal').textContent=((nP-ultP.p)/dias).toFixed(3)+' kg/cab/día ('+dias+' días)';
+}
+function savePes(){
+  const l=getActivo();if(!l)return;
+  const p=parseFloat(document.getElementById('nP')?.value);
+  if(!p){alert('Ingresá el peso promedio');return;}
+  const fEl=document.getElementById('nF').value;
+  const parts=fEl.split('-');
+  const fd=`${parseInt(parts[2])}/${parseInt(parts[1])}`;
+  let gdm=null;
+  if(l.pesadas.length){
+    const ult=l.pesadas[l.pesadas.length-1];
+    const ultParts=ult.f.split('/');
+    const months={1:'01',2:'02',3:'03',4:'04',5:'05',6:'06',7:'07',8:'08',9:'09',10:'10',11:'11',12:'12'};
+    const fU=new Date(`2025-${months[parseInt(ultParts[1])]}-${ultParts[0].length===1?'0'+ultParts[0]:ultParts[0]}`);
+    const dias=Math.max(1,Math.round((new Date(fEl)-fU)/86400000));
+    gdm=(p-ult.p)/dias;
+  }
+  l.pesadas.push({f:fd,p,gdm});
+  l.params.pesoPromedio=p;
+  l.params.animales=parseInt(document.getElementById('nC').value)||l.animales;
+  alert('Pesada guardada ✓');renderPesadas();renderDash();
+}
+
+// ─── DIETA ────────────────────────────────────────────────────────
+function renderDieta(){
+  const l=getActivo();if(!l)return;
+  const d=l.dieta;
+  const div=document.getElementById('dietaContent');
+  div.innerHTML=`<div class="tabs"><button class="tab active" id="dt1" onclick="swD('form')">Formulación</button><button class="tab" id="dt2" onclick="swD('precios')">Precios</button></div>
+  <div id="dtf">
+    <div style="font-size:12px;color:var(--txt3);margin-bottom:12px">Lote activo: <strong style="color:var(--txt)">${l.nombre}</strong></div>
+    <div class="card"><h3>Composición de la dieta</h3>
+    ${Object.entries(d).map(([k,v])=>`<div class="ingredient-row"><div class="ing-header"><span class="ing-name">${k[0].toUpperCase()+k.slice(1)}</span><span class="ing-pct" id="pct_${k}" style="color:${v.color}">${v.pct.toFixed(1)}%</span></div><input type="range" min="0" max="80" step="0.5" value="${v.pct}" style="accent-color:${v.color}" oninput="updI('${k}',this.value)"><div class="ing-stats"><span style="color:${v.color}">● ${k[0].toUpperCase()+k.slice(1)}</span><span>PB: ${v.pb}% · EM: ${v.em} Mcal</span></div></div>`).join('')}
+    <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--txt2)">Total</span><span id="totalPct" style="font-weight:600;font-family:'DM Mono',monospace"></span></div></div>
+    <div class="card"><h3>Balance nutricional</h3><div id="nutBal"></div></div>
+    <div class="card"><h3>Costo de ración</h3><div class="chart-wrap" style="height:150px"><canvas id="costoChart"></canvas></div><div id="costoTot" style="text-align:center;margin-top:8px;font-size:17px;font-weight:600;color:var(--green)"></div></div>
+    <button class="btn btn-primary" style="margin-bottom:12px" onclick="alert('Dieta guardada ✓')">Guardar dieta</button>
+  </div>
+  <div id="dtp" style="display:none">
+    <div class="card"><h3>Precios actuales (₲/kg)</h3>
+    <div style="font-size:12px;color:var(--txt3);margin-bottom:12px">Los cambios se aplican al lote activo: <strong style="color:var(--txt)">${l.nombre}</strong></div>
+    ${Object.entries(d).map(([k,v])=>`<div class="precio-row"><div class="precio-dot" style="background:${v.color}"></div><div class="precio-name">${k[0].toUpperCase()+k.slice(1)}</div><div class="precio-input-wrap"><span>₲</span><input class="precio-input" id="precio_${k}" type="number" value="${v.precio}" min="0" step="10" oninput="prvP('${k}',this.value,this)"><span style="font-size:11px;color:var(--txt3)">/kg</span></div></div>`).join('')}
+    </div>
+    <div class="precio-summary" id="precioSummary"></div>
+    <button class="btn btn-primary" style="margin-top:12px;margin-bottom:12px" onclick="guardarPrecios()">Confirmar precios</button>
+  </div>`;
+  updD();updPS();
+}
+function swD(t){document.getElementById('dtf').style.display=t==='form'?'block':'none';document.getElementById('dtp').style.display=t==='precios'?'block':'none';document.getElementById('dt1').classList.toggle('active',t==='form');document.getElementById('dt2').classList.toggle('active',t==='precios');}
+function updI(k,val){const l=getActivo();if(!l)return;l.dieta[k].pct=parseFloat(val);const e=document.getElementById('pct_'+k);if(e)e.textContent=parseFloat(val).toFixed(1)+'%';updD();}
+function prvP(k,val,inp){const l=getActivo();if(!l)return;inp.classList.toggle('precio-changed',parseInt(val)!==l.dieta[k].precio);updPS();}
+function guardarPrecios(){const l=getActivo();if(!l)return;let ch=0;Object.keys(l.dieta).forEach(k=>{const inp=document.getElementById('precio_'+k);if(inp){const nv=parseInt(inp.value)||0;if(nv!==l.dieta[k].precio){l.dieta[k].precio=nv;ch++;inp.classList.remove('precio-changed');}}});if(ch>0){updD();renderDash();alert(`✓ ${ch} precio${ch>1?'s':''} actualizado${ch>1?'s':''}. Costo recalculado.`);}else{alert('No hubo cambios.');}updPS();}
+function updPS(){const l=getActivo();if(!l)return;const div=document.getElementById('precioSummary');if(!div)return;let tot=0;const rows=Object.entries(l.dieta).map(([k,v])=>{const inp=document.getElementById('precio_'+k);const p=inp?parseInt(inp.value)||v.precio:v.precio;const cm=(v.pct/100)*p;tot+=cm;return `<div class="precio-summary-row"><span>${k[0].toUpperCase()+k.slice(1)} (${v.pct.toFixed(1)}%)</span><span>₲${Math.round(cm).toLocaleString()}</span></div>`;}).join('');div.innerHTML=`<div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:8px">Costo de ración proyectado</div>${rows}<div class="precio-summary-row total"><span>Total por kg de ración</span><span>₲${Math.round(tot).toLocaleString()}</span></div>`;}
+function updD(){const l=getActivo();if(!l)return;const d=l.dieta;const total=Object.values(d).reduce((s,v)=>s+v.pct,0);const tp=document.getElementById('totalPct');if(tp){tp.textContent=total.toFixed(1)+'%';tp.style.color=Math.abs(total-100)<0.5?'var(--green)':'var(--red)';}let pb=0,em=0,costo=0;Object.values(d).forEach(v=>{pb+=v.pct/100*v.pb/100;em+=v.pct/100*v.em;costo+=v.pct/100*v.precio;});const nb=document.getElementById('nutBal');if(nb)nb.innerHTML=`<div class="nutr-row"><div class="nutr-label"><span>Proteína bruta</span><span style="font-weight:600;color:${pb>=0.08?'var(--green)':'var(--red)'}">${(pb*100).toFixed(2)}% ${pb>=0.08?'✓':'⚠'}</span></div><div class="nutr-bar-bg"><div class="nutr-bar-fill" style="width:${Math.min(pb/0.15*100,100).toFixed(0)}%;background:${pb>=0.08?'var(--green)':'var(--red)'}"></div></div></div><div class="nutr-row"><div class="nutr-label"><span>Energía metab.</span><span style="font-weight:600;color:${em>=2.0?'var(--green)':'var(--red)'}">${em.toFixed(2)} Mcal ${em>=2.0?'✓':'⚠'}</span></div><div class="nutr-bar-bg"><div class="nutr-bar-fill" style="width:${Math.min(em/3.5*100,100).toFixed(0)}%;background:${em>=2.0?'var(--green)':'var(--amber)'}"></div></div></div>`;const ct=document.getElementById('costoTot');if(ct)ct.textContent='₲'+Math.round(costo).toLocaleString()+' /kg de ración';dc('costoChart');const el=document.getElementById('costoChart');if(el)charts.costoChart=new Chart(el,{type:'bar',data:{labels:Object.keys(d).map(k=>k[0].toUpperCase()+k.slice(1)),datasets:[{data:Object.values(d).map(v=>Math.round(v.pct/100*v.precio)),backgroundColor:Object.values(d).map(v=>v.color),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₲'+v.toLocaleString()}}}}});}
+
+// ─── PREP ─────────────────────────────────────────────────────────
+function renderPrep(){
+  const l=getActivo();if(!l)return;
+  const p=l.params;
+  const div=document.getElementById('prepContent');
+  const ckd=(p.pesoPromedio*p.consumoPV/100);
+  const cr=Object.values(l.dieta).reduce((s,v)=>s+(v.pct/100)*v.precio,0);
+  div.innerHTML=`
+  <div class="prep-hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-bottom:4px">${l.nombre}</div><div style="font-size:26px;font-weight:600" id="phv">${(ckd*p.animales).toFixed(0)} kg/día</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:4px" id="phs">${p.animales} animales × ${ckd.toFixed(2)} kg/cab</div></div>
+      <div style="text-align:right"><div style="font-size:11px;color:rgba(255,255,255,.6)">Costo total/día</div><div style="font-size:20px;font-weight:600" id="phc">₲${Math.round(cr*ckd*p.animales).toLocaleString()}</div></div>
+    </div>
+  </div>
+  <div style="background:var(--green-l);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+    <div style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:8px">⚖️ Ajustar parámetros de cálculo</div>
+    <div class="prep-ctrl"><label>Animales del lote</label><input id="pA" type="number" value="${p.animales}" min="1" oninput="updP()"></div>
+    <div class="prep-ctrl"><label>Peso promedio (kg)</label><input id="pW" type="number" value="${p.pesoPromedio}" min="50" oninput="updP()"></div>
+    <div class="prep-ctrl"><label>Consumo % PV</label><input id="pC" type="number" value="${p.consumoPV}" min="0.5" max="4" step="0.1" oninput="updP()"></div>
+  </div>
+  <div class="card"><h3>Cantidades por ingrediente</h3><div id="pTabla"></div></div>
+  <div class="card"><h3>Desglose de costos</h3><div id="pCostos"></div></div>
+  <div class="card"><h3>Equivalencias</h3><div id="pEquiv"></div></div>`;
+  updP();
+}
+function updP(){
+  const l=getActivo();if(!l)return;
+  const a=parseInt(document.getElementById('pA')?.value)||l.animales;
+  const pw=parseFloat(document.getElementById('pW')?.value)||l.params.pesoPromedio;
+  const pv=parseFloat(document.getElementById('pC')?.value)||1.0;
+  l.params={animales:a,pesoPromedio:pw,consumoPV:pv};
+  const ckd=(pw*pv/100),tot=ckd*a;
+  const cr=Object.values(l.dieta).reduce((s,v)=>s+(v.pct/100)*v.precio,0);
+  const cd=cr*tot;
+  const hv=document.getElementById('phv');if(hv)hv.textContent=tot.toFixed(0)+' kg/día';
+  const hs=document.getElementById('phs');if(hs)hs.textContent=`${a} animales × ${ckd.toFixed(2)} kg/cab`;
+  const hc=document.getElementById('phc');if(hc)hc.textContent='₲'+Math.round(cd).toLocaleString();
+  const tab=document.getElementById('pTabla');
+  if(tab)tab.innerHTML=Object.entries(l.dieta).map(([k,v])=>{
+    const kc=(v.pct/100)*ckd,kll=kc*a;
+    const dc=kc<0.1?`${(kc*1000).toFixed(0)} gr`:`${kc.toFixed(3)} kg`;
+    const dl=kll<1?`${(kll*1000).toFixed(0)} gr`:`${kll.toFixed(1)} kg`;
+    return `<div class="prep-row"><div class="prep-color" style="background:${v.color}"></div><div class="prep-ing"><div class="pi-name">${k[0].toUpperCase()+k.slice(1)}</div><div class="pi-pct">${v.pct.toFixed(1)}% de la mezcla</div></div><div class="prep-vals"><div class="pv-main">${dl}</div><div class="pv-sub">${dc}/animal</div></div></div>`;
+  }).join('')+`<div class="prep-row" style="border:none;background:var(--green-l);border-radius:10px;margin-top:8px;padding:10px 0"><div class="prep-color" style="background:var(--green)"></div><div class="prep-ing"><div class="pi-name" style="font-weight:600">Total mezcla</div><div class="pi-pct">100%</div></div><div class="prep-vals"><div class="pv-main" style="color:var(--green)">${tot.toFixed(1)} kg</div><div class="pv-sub">${ckd.toFixed(3)} kg/animal</div></div></div>`;
+  const cos=document.getElementById('pCostos');
+  if(cos){let ca=0;const rows=Object.entries(l.dieta).map(([k,v])=>{const kll=(v.pct/100)*tot;const c=kll*v.precio;ca+=c;return `<div class="prep-cost-row"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${v.color};display:inline-block"></span>${k[0].toUpperCase()+k.slice(1)}</span><span>₲${Math.round(c).toLocaleString()}</span></div>`;}).join('');cos.innerHTML=rows+`<div class="prep-cost-row"><span>Total del día</span><span style="color:var(--green)">₲${Math.round(ca).toLocaleString()}</span></div>`;}
+  const eq=document.getElementById('pEquiv');
+  if(eq)eq.innerHTML=`<div class="prep-cost-row"><span>Bolsas de 50 kg / día</span><span style="font-weight:600">${(tot/50).toFixed(1)} bolsas</span></div><div class="prep-cost-row"><span>Costo por animal / día</span><span style="font-weight:600">₲${Math.round(cd/a).toLocaleString()}</span></div><div class="prep-cost-row"><span>Costo estimado 30 días</span><span style="font-weight:600">₲${Math.round(cd*30).toLocaleString()}</span></div><div class="prep-cost-row"><span>Costo por kg de ración</span><span style="font-weight:600">₲${Math.round(cr).toLocaleString()}</span></div>`;
+}
+
+// ─── ALERTAS ─────────────────────────────────────────────────────
+function renderAlertas(){
+  const l=getActivo();if(!l)return;
+  dc('alertaChart');
+  const gdms=l.pesadas.filter(p=>p.gdm!==null);
+  const obj=l.gdmObjetivo||0.4;
+  const el=document.getElementById('alertaChart');
+  if(el&&gdms.length)charts.alertaChart=new Chart(el,{type:'bar',data:{labels:gdms.map(p=>p.f),datasets:[{data:gdms.map(p=>p.gdm),backgroundColor:gdms.map(p=>p.gdm>=obj?'rgba(45,138,82,.7)':'rgba(192,57,43,.7)'),borderRadius:3},{data:gdms.map(()=>obj),type:'line',borderColor:'#1a1a18',borderDash:[4,3],borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:10}},y:{min:0}}}});
+  const list=document.getElementById('alertasList');
+  if(list)list.innerHTML=gdms.filter(p=>p.gdm<obj).map(p=>`<div class="alert-item ${p.gdm<obj*0.6?'red':'amber'}"><div class="alert-dot ${p.gdm<obj*0.6?'red':'amber'}"></div><div class="alert-txt">${p.f} — GDM: ${p.gdm.toFixed(3)} kg/día<span>${((obj-p.gdm)/obj*100).toFixed(0)}% bajo meta (${obj} kg/día)</span></div></div>`).join('')||'<div style="text-align:center;padding:20px;color:var(--txt3);font-size:13px">Sin alertas para el lote activo ✓</div>';
+}
+
+function addUser(){clearMsgs();const n=document.getElementById('nuNombre').value.trim();const a=document.getElementById('nuApellido').value.trim();const e=document.getElementById('nuEmail').value.trim();const p=document.getElementById('nuPass').value;const r=document.getElementById('nuRol').value;if(!n||!a||!e||!p){showErr('nuErr','Completá todos los campos.');return;}if(p.length<6){showErr('nuErr','Mínimo 6 caracteres.');return;}if(users.find(u=>u.email===e)){showErr('nuErr','Ya existe ese email.');return;}const colors=['#1a6b3c','#1565c0','#b85c00','#6b21a8'];users.push({id:Date.now(),nombre:n,apellido:a,email:e,pass:p,role:r,pendingRole:null,color:colors[Math.floor(Math.random()*colors.length)]});closeModal('modalNuevoUser');}
+
+showView('viewLogin');
+</script>
+</body>
+</html>

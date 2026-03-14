@@ -1,0 +1,60 @@
+# GanadoApp — Instrucciones de instalación
+
+## ¿Qué incluye este paquete?
+- `index.html` — La app completa
+- `manifest.json` — Configuración para instalar como app
+- `sw.js` — Service Worker (permite uso sin internet)
+- `icons/` — Íconos para todos los dispositivos
+
+---
+
+## Cómo instalar en Android
+1. Abrí Chrome en tu celular
+2. Entrá al archivo `index.html` (desde un servidor local o GitHub Pages)
+3. Tocá los tres puntos (⋮) arriba a la derecha
+4. Seleccioná **"Agregar a pantalla de inicio"**
+5. La app aparece como ícono nativo en tu pantalla
+
+## Cómo instalar en iPhone / iPad
+1. Abrí Safari
+2. Entrá al archivo `index.html`
+3. Tocá el botón compartir (cuadrado con flecha)
+4. Seleccioná **"Agregar a pantalla de inicio"**
+
+## Cómo instalar en PC (Windows / Mac / Linux)
+1. Abrí Chrome o Edge
+2. Entrá al archivo `index.html`
+3. En la barra de direcciones aparece un ícono de instalación (⊕)
+4. Hacé clic en **"Instalar GanadoApp"**
+5. La app se abre como ventana separada, sin barra del navegador
+
+---
+
+## Opción más fácil: GitHub Pages (gratis)
+1. Creá una cuenta en github.com
+2. Subí todos los archivos de esta carpeta
+3. En Settings → Pages → activá GitHub Pages
+4. Compartí el link con tu equipo — todos pueden instalar la app desde ese link
+
+---
+
+## Usuarios de prueba incluidos
+| Rol | Email | Contraseña |
+|-----|-------|-----------|
+| Admin | admin@campo.py | admin123 |
+| Operario | operario@campo.py | op123 |
+| Solo lectura | vista@campo.py | vista123 |
+
+---
+
+## Funcionalidades
+- Login con roles (Admin, Operario, Solo lectura)
+- Registro con aprobación de roles por el Admin
+- Cambio de contraseña con medidor de fortaleza
+- Dashboard con gráficos de GDM y peso
+- Registro de pesadas con cálculo automático de GDM
+- Formulación de dieta con sliders y balance nutricional
+- Alertas de rendimiento por período
+- Panel de administración de usuarios
+- Exportación de datos en CSV (compatible con Excel)
+- Funciona sin internet (modo offline) una vez instalada
